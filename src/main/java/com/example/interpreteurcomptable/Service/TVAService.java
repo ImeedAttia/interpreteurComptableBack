@@ -6,5 +6,5 @@ public interface TVAService {
     TVA addTVA(TVA tva);
     void deleteTVA();
     void updateTVA();
-    void getTVA();
+    TVA getTVA();
 }

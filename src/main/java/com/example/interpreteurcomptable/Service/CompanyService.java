@@ -1,8 +1,9 @@
 package com.example.interpreteurcomptable.Service;
 
+import com.example.interpreteurcomptable.Entities.Company;
 import com.example.interpreteurcomptable.Entities.Transaction;
 
-public interface TrasactionService {
+public interface CompanyService {
     //crud functs
-    Transaction addTransaction(Transaction transaction);
+    Company addCompany(Company company);
 }

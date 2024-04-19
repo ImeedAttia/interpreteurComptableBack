@@ -1,13 +1,11 @@
 package com.example.interpreteurcomptable.Entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -22,12 +20,6 @@ public class TVA {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
-    String periodeDeclaration;
-    String nomDenomination;
-    String adresse;
-    String numSiret;
-    LocalDate datePaiment;
-    String numPhone;
     double vente;
     double aOI;
     double tvaBrute20;
@@ -40,4 +32,8 @@ public class TVA {
     double tvaNetDue;
     double taxAss;
     double totPayer;
+    Date creationDate;
+
+    @ManyToOne
+    Company company;
 }

@@ -10,21 +10,12 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class TrasactionServiceImpl implements TrasactionService {
+public class TransactionServiceImpl implements TrasactionService {
     private final TrasctionRepository trasctionRepository;
     private final TVARepository tvaRepository;
 
     @Override
-    public void addTransaction(Transaction transaction) {
-        transaction.getId();
-        TVA tvaInput = new TVA();
-//        tvaInput.s(transaction.getTva().getTaux());
-//        tvaInput.setTvaBrute20(transaction.getABService());
-//        tvaInput.setAdresse(getAdresse());
-
-        tvaRepository.save(tvaInput);
-        //tvaRepository.g
-
-
+    public Transaction addTransaction(Transaction transaction) {
+        return trasctionRepository.save(transaction);
     }
 }
