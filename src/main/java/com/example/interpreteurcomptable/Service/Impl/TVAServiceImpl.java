@@ -35,7 +35,7 @@ public class TVAServiceImpl implements TVAService {
     @Override
     public TVA getTVA() {
         TVA tvacalculated = calculateTVA();
-        return this.addTVA(tvacalculated);
+        return tvacalculated;
     }
 
 

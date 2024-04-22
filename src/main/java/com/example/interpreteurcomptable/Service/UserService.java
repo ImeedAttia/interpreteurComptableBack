@@ -7,4 +7,7 @@ import java.util.List;
 
 public interface UserService {
     List<UserResponse> getUser();
+    UserResponse updateUser(long id,User user);
+
+    User getUserById(long userId);
 }

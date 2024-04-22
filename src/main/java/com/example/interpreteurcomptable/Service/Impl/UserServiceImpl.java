@@ -25,6 +25,26 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public UserResponse updateUser(long id,User user) {
+        User u = userRepository.findById(id).orElseThrow();
+        u.setFirstName(user.getFirstName());
+        u.setLastName(user.getLastName());
+        u.setEmail(user.getEmail());
+        User userRes =  userRepository.save(u);
+        return UserResponse.builder()
+                .id(userRes.getId())
+                .firstName(userRes.getFirstName())
+                .lastName(userRes.getLastName())
+                .email(userRes.getEmail())
+                .build();
+    }
+
+    @Override
+    public User getUserById(long userId) {
+        return userRepository.findById(userId).orElseThrow();
+    }
+
     private UserResponse mapToUserResponse(User user) {
         Company c = companyRepository.findByUserId(user.getId());
         return UserResponse.builder()
