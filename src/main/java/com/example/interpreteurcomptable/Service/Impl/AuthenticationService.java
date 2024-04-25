@@ -7,6 +7,8 @@ import com.example.interpreteurcomptable.Entities.Auth.RegisterRequest;
 import com.example.interpreteurcomptable.Entities.Role;
 import com.example.interpreteurcomptable.Entities.User;
 import com.example.interpreteurcomptable.Repository.UserRepository;
+import com.example.interpreteurcomptable.Service.EmailService;
+import com.example.interpreteurcomptable.Service.UserService;
 import com.example.interpreteurcomptable.config.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,7 +23,7 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-
+    private final EmailService emailService;
     public AuthenticationResponse register(RegisterRequest registerRequest) {
         var user = User.builder()
                 .email(registerRequest.getEmail())
@@ -31,7 +33,8 @@ public class AuthenticationService {
                 .password(passwordEncoder.encode(registerRequest.getPassword()))
                 .role(Role.USER)
                 .build();
-        utilisateurRepository.save(user);
+        User u = utilisateurRepository.save(user);
+        emailService.sendEmailWithTemplate(u);
         var jwt = jwtService.generateToken(user);
         return AuthenticationResponse.builder().token(jwt).build();
     }
