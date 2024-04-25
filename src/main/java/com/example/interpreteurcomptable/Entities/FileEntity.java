@@ -22,8 +22,9 @@ public class FileEntity {
     String fileType;
     @ManyToOne
     User user;
-    @Lob @Basic(fetch = FetchType.LAZY)
-    @Column(length=100000)
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(length = 100000)
     byte[] data;
 
 }

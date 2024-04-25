@@ -12,6 +12,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CFEServiceImpl implements CFEService {
     private final CFERepository cfeRepository;
+
     @Override
     public CFE addCFE(CFE cfe) {
         return cfeRepository.save(cfe);
@@ -23,7 +24,7 @@ public class CFEServiceImpl implements CFEService {
     }
 
     @Override
-    public CFE updateCFE(long id,CFE cfe) {
+    public CFE updateCFE(long id, CFE cfe) {
 //        CFE cfeDB = cfeRepository.findById(id).orElse(null);
 //        cfeDB.set
         return cfeRepository.save(cfe);

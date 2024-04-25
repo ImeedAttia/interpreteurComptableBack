@@ -26,7 +26,7 @@ public class CVAE {
     String siret;
     String ref;
     Date cessation;
-    double valAjouté;
+    double valAjoute;
     double refAhiffaffair;
     double refChiffaffairGrp;
     Date date;

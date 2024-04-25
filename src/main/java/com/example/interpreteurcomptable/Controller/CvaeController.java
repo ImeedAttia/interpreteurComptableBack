@@ -15,26 +15,29 @@ public class CvaeController {
     private final CVAEService cvaeService;
 
     @PostMapping
-    public CVAE createCvae(@RequestBody CVAE cvae){
+    public CVAE createCvae(@RequestBody CVAE cvae) {
         return cvaeService.addCVAE(cvae);
     }
+
     // complete functions
     @GetMapping(path = "/{id}")
-    public CVAE getCVAEById(@PathVariable long id){
+    public CVAE getCVAEById(@PathVariable long id) {
         return cvaeService.getCVAEById(id);
     }
 
     @GetMapping
-    public List<CVAE> getCVAEList(){
+    public List<CVAE> getCVAEList() {
         return cvaeService.getCVAE();
     }
+
     @DeleteMapping("/{id}")
-    public void deleteCVA(@PathVariable long id){
+    public void deleteCVA(@PathVariable long id) {
         cvaeService.deleteCVAE(id);
     }
+
     @PutMapping("/{id}")
-    public CVAE updateCVA(@PathVariable long id,@RequestBody CVAE cvae){
-        return  cvaeService.updateCVAE(id,cvae);
+    public CVAE updateCVA(@PathVariable long id, @RequestBody CVAE cvae) {
+        return cvaeService.updateCVAE(id, cvae);
     }
 
 }

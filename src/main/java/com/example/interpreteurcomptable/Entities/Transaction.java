@@ -31,7 +31,7 @@ public class Transaction {
     String pending;
     double fee;
     String remarks;
-//    LocalDate datePaiment;
+    //    LocalDate datePaiment;
     @ManyToOne
     Company company;
 }

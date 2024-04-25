@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -27,36 +28,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
-            ) throws ServletException, IOException {
-            if (request.getServletPath().contains("/v1/auth")) {
-                filterChain.doFilter(request, response);
-                return;
-            }
-            final String authHeder = request.getHeader("Authorization");
-            String jwt = null;
-            String username = null;
-            if (authHeder == null || !authHeder.startsWith("Bearer ")) {
-                filterChain.doFilter(request, response);
-                return;
-            }
-            jwt = authHeder.substring(7);
-            username = jwtService.extractUsername(jwt);
-            System.out.println("username: " + username);
-            System.out.println("jwt: " + jwt);
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                boolean isValid = jwtService.isTokenValid(jwt, userDetails);
-                if(isValid ){
-                    //update the security context
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities()
-                    );
-                    authToken.setDetails(
-                            new WebAuthenticationDetailsSource().buildDetails(request)
-                    );
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-                }
-            }
+    ) throws ServletException, IOException {
+        if (request.getServletPath().contains("/v1/auth")) {
             filterChain.doFilter(request, response);
+            return;
+        }
+        final String authHeder = request.getHeader("Authorization");
+        String jwt = null;
+        String username = null;
+        if (authHeder == null || !authHeder.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        jwt = authHeder.substring(7);
+        username = jwtService.extractUsername(jwt);
+        System.out.println("username: " + username);
+        System.out.println("jwt: " + jwt);
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            boolean isValid = jwtService.isTokenValid(jwt, userDetails);
+            if (isValid) {
+                //update the security context
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities()
+                );
+                authToken.setDetails(
+                        new WebAuthenticationDetailsSource().buildDetails(request)
+                );
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
+        }
+        filterChain.doFilter(request, response);
     }
 }
