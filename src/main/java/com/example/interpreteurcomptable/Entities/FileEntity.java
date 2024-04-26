@@ -16,9 +16,7 @@ public class FileEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
-
     String fileName;
-
     String fileType;
     @ManyToOne
     User user;

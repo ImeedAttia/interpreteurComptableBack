@@ -27,7 +27,7 @@ public class CVAEServiceImpl implements CVAEService {
 
     @Override
     public void deleteCVAE(long id) {
-        cvaeRepository.deleteAll();
+        cvaeRepository.deleteById(id);
     }
 
     @Override

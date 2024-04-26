@@ -1,16 +1,23 @@
 package com.example.interpreteurcomptable.Controller;
 
+import com.example.interpreteurcomptable.Entities.CVAE;
 import com.example.interpreteurcomptable.Entities.Response.UserResponse;
 import com.example.interpreteurcomptable.Entities.TVA;
 import com.example.interpreteurcomptable.Service.TVAService;
 import lombok.RequiredArgsConstructor;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
+import org.apache.pdfbox.pdmodel.interactive.form.PDTextField;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -23,5 +30,62 @@ public class TVAController {
     @GetMapping
     public ResponseEntity<TVA> getTVA() {
         return new ResponseEntity<TVA>(tvaService.getTVA(), HttpStatus.OK);
+    }
+
+    @PostMapping("/fill-pdf/{cvaeId}")
+    public ResponseEntity<byte[]> fillPdfAndDownload(@RequestParam("file") MultipartFile file, @PathVariable long cvaeId) {
+        try (PDDocument document = PDDocument.load(file.getInputStream())) {
+            PDAcroForm acroForm = document.getDocumentCatalog().getAcroForm();
+            if (acroForm == null) {
+                return ResponseEntity.badRequest().body("The provided PDF file does not contain a form.".getBytes());
+            }
+
+            // Fetch the CVAE data
+            TVA cvae = tvaService.getTVA();
+            if (cvae == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            //fillFields(acroForm, cvae);
+
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            document.save(byteArrayOutputStream);
+            byte[] pdfBytes = byteArrayOutputStream.toByteArray();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=modifiedForm.pdf");
+            headers.add(HttpHeaders.CONTENT_TYPE, "application/pdf");
+
+            return ResponseEntity.ok().headers(headers).body(pdfBytes);
+        } catch (IOException e) {
+            return ResponseEntity.internalServerError().body(("Error processing PDF file: " + e.getMessage()).getBytes());
+        }
+    }
+
+    private void fillFields(PDAcroForm acroForm, CVAE cvae) throws IOException {
+        acroForm.getField("den").setValue(cvae.getDenomination() != null ? cvae.getDenomination() : "Default Denomination");
+        acroForm.getField("add").setValue(cvae.getAddress() != null ? cvae.getAddress() : "Default Address");
+        acroForm.getField("Code postal").setValue(cvae.getCodPost() != null ? cvae.getCodPost() : "Default CodPost");
+        acroForm.getField("ville").setValue(cvae.getVille() != null ? cvae.getVille() : "Default Ville");
+        acroForm.getField("siret").setValue(cvae.getSiret() != null ? cvae.getSiret() : "Default SIRET");
+        // Setting static defaults for demonstration
+        String[] numberFields = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "A2", "A3", "B6","A"};
+        for (String fieldName : numberFields) {
+            PDTextField field = (PDTextField) acroForm.getField(fieldName);
+            if (field != null) {
+                field.setValue("00"); // Default value for these fields
+            }
+        }
+        acroForm.getField("A").setValue(cvae.getRef() != null ? cvae.getRef() : "Default Reference");
+
+        // Set the date field to the current system date
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String currentDate = LocalDate.now().format(dtf);
+        PDTextField dateField = (PDTextField) acroForm.getField("date");
+        if (dateField != null) {
+            dateField.setValue(currentDate);
+        } else {
+            System.out.println("Date field not found in the PDF.");
+        }
     }
 }
