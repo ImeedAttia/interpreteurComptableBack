@@ -1,20 +1,29 @@
 package com.example.interpreteurcomptable.Controller;
 
+import com.example.interpreteurcomptable.Entities.CFE;
 import com.example.interpreteurcomptable.Entities.CVAE;
+import com.example.interpreteurcomptable.Entities.FileEntity;
+import com.example.interpreteurcomptable.Entities.Historique;
+import com.example.interpreteurcomptable.Repository.HistoriqueRepository;
 import com.example.interpreteurcomptable.Service.CVAEService;
+import com.example.interpreteurcomptable.Service.FileService;
+import com.example.interpreteurcomptable.Service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
 import org.apache.pdfbox.pdmodel.interactive.form.PDTextField;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -23,6 +32,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CvaeController {
     private final CVAEService cvaeService;
+    private final HistoriqueRepository historiqueRepository;
+    private final FileService fileService;
 
     @PostMapping
     public CVAE createCvae(@RequestBody CVAE cvae) {
@@ -51,8 +62,8 @@ public class CvaeController {
     }
 
 
-    @PostMapping("/fill-pdf/{cvaeId}")
-    public ResponseEntity<byte[]> fillPdfAndDownload(@RequestParam("file") MultipartFile file, @PathVariable long cvaeId) {
+    @PostMapping("/fill-pdf/{cvaeId}/{userId}")
+    public ResponseEntity<byte[]> fillPdfAndDownload(@RequestParam("file") MultipartFile file, @PathVariable long cvaeId,@PathVariable long userId) {
         try (PDDocument document = PDDocument.load(file.getInputStream())) {
             PDAcroForm acroForm = document.getDocumentCatalog().getAcroForm();
             if (acroForm == null) {
@@ -70,7 +81,21 @@ public class CvaeController {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             document.save(byteArrayOutputStream);
             byte[] pdfBytes = byteArrayOutputStream.toByteArray();
-
+            MultipartFile multipartFile = new MockMultipartFile("file", "CVAE.pdf", "application/pdf", pdfBytes);
+            // get current Date
+            Date now = new Date();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            CVAE cvae1 = cvaeService.addCVAE(cvae);
+            FileEntity feInput = fileService.storeFilePdf(file, userId);
+            FileEntity feOutput = fileService.storeFilePdf(multipartFile, userId);
+            Historique historique = new Historique();
+            historique.setCvae(cvae1);
+            historique.setCreatedAt(now);
+            historique.setUpdatedAt(now);
+            historique.setTitre("CVAE - "+ dateFormat.format(now));
+            historique.setInputFile(feInput);
+            historique.setOutputFile(feOutput);
+            historiqueRepository.save(historique);
             HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=modifiedForm.pdf");
             headers.add(HttpHeaders.CONTENT_TYPE, "application/pdf");

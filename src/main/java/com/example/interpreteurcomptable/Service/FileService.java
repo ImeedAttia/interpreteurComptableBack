@@ -6,4 +6,5 @@ import org.springframework.web.multipart.MultipartFile;
 public interface FileService {
     FileEntity storeFile(MultipartFile file, long userId);
     FileEntity getFile(long userId);
+    FileEntity storeFilePdf(MultipartFile file, long userId);
 }

@@ -33,7 +33,10 @@ public class TVA {
     double taxAss;
     double totPayer;
     Date creationDate;
-
-    @ManyToOne
-    Company company;
+    int du;
+    int au;
+    String nom;
+    String address;
+    double siret;
+    int phone;
 }
