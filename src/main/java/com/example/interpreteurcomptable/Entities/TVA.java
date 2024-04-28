@@ -33,10 +33,10 @@ public class TVA {
     double taxAss;
     double totPayer;
     Date creationDate;
-    int du;
-    int au;
+    String du;
+    String au;
     String nom;
     String address;
-    double siret;
+    String siret;
     int phone;
 }

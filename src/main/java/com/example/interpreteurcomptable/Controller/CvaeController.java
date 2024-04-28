@@ -113,13 +113,28 @@ public class CvaeController {
         acroForm.getField("ville").setValue(cvae.getVille() != null ? cvae.getVille() : "Default Ville");
         acroForm.getField("siret").setValue(cvae.getSiret() != null ? cvae.getSiret() : "Default SIRET");
         // Setting static defaults for demonstration
-        String[] numberFields = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "A2", "A3", "B6","A"};
-        for (String fieldName : numberFields) {
-            PDTextField field = (PDTextField) acroForm.getField(fieldName);
-            if (field != null) {
-                field.setValue("00"); // Default value for these fields
-            }
+        String ref = cvae.getRef();
+
+        // Set values for fields 1 and 2
+        if (ref.length() >= 8) {
+            acroForm.getField("1").setValue(ref.substring(0, 2));
+            acroForm.getField("2").setValue(ref.substring(2, 4));
+            acroForm.getField("3").setValue(ref.substring(4, 6));
+            acroForm.getField("4").setValue(ref.substring(6, 8));
+            acroForm.getField("5").setValue(ref.substring(8, 10));
+            acroForm.getField("6").setValue(ref.substring(10, 12));
         }
+
+        // Set values for fields 7, 8, and 9
+            String datePart = cvae.getDate().toString();
+            acroForm.getField("7").setValue(datePart.substring(8, 10));
+            acroForm.getField("8").setValue(datePart.substring(5, 7));
+            acroForm.getField("9").setValue(datePart.substring(2,4));
+
+        acroForm.getField("A2").setValue(String.valueOf(cvae.getValAjoute()));
+        acroForm.getField("A3").setValue(String.valueOf(cvae.getRefAhiffaffair()));
+        acroForm.getField("B6").setValue(String.valueOf(cvae.getRefChiffaffairGrp()));
+
         acroForm.getField("A").setValue(cvae.getRef() != null ? cvae.getRef() : "Default Reference");
 
         // Set the date field to the current system date

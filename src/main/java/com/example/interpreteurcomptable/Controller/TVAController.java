@@ -59,8 +59,19 @@ public class TVAController {
             if (tva == null) {
                 return ResponseEntity.notFound().build();
             }
+            Date now = new Date();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            tva.setAddress("NovitionCity_sahloul");
+            tva.setPhone(+33116254);
+            tva.setSiret("82321567800025");
+            tva.setCreationDate(now);
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            tva.setDu(LocalDate.now().format(dtf));
+            tva.setAu(LocalDate.now().format(dtf));
 
-            fillFields(acroForm, tva);
+            tva.setNom("Elzei Consulting");
+            TVA tva1 = tvaService.addTVA(tva);
+            fillFields(acroForm, tva1);
 
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             document.save(byteArrayOutputStream);
@@ -68,9 +79,8 @@ public class TVAController {
 
             // Creating a MockMultipartFile from byte[]
             MultipartFile multipartFile = new MockMultipartFile("file", "TVA.pdf", "application/pdf", pdfBytes);
-            Date now = new Date();
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            TVA tva1 = tvaService.addTVA(tva);
+
+
             FileEntity feInput = fileService.storeFilePdf(file, userId);
             FileEntity feOutput = fileService.storeFilePdf(multipartFile, userId);
             Historique historique = new Historique();
@@ -83,7 +93,7 @@ public class TVAController {
             historiqueRepository.save(historique);
 
             HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=modifiedForm.pdf");
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=tva.pdf");
             return ResponseEntity.ok().headers(headers).body(pdfBytes);
         } catch (IOException e) {
             return ResponseEntity.internalServerError().body(("Error processing PDF file: " + e.getMessage()).getBytes());
@@ -96,22 +106,25 @@ public class TVAController {
         acroForm.getField("au").setValue(String.valueOf(tva.getAu()));
         acroForm.getField("nom").setValue(tva.getNom());
         acroForm.getField("add").setValue(tva.getAddress());
-        acroForm.getField("siret").setValue(String.format("%.0f", tva.getSiret()));
-        acroForm.getField("date").setValue(String.valueOf(tva.getCreationDate()));
+        //acroForm.getField("siret").setValue(String.format("%.0f", tva.getSiret()));
+        acroForm.getField("Date").setValue(String.valueOf(tva.getCreationDate()));
         acroForm.getField("phone").setValue(String.valueOf(tva.getPhone()));
-
         // New fields
-        acroForm.getField("vente").setValue(String.format("%.2f", tva.getVente()));
+        acroForm.getField("ventes").setValue(String.format("%.2f", tva.getVente()));
         acroForm.getField("aOI").setValue(String.format("%.2f", tva.getAOI()));
-        acroForm.getField("tvaBrute20").setValue(String.format("%.2f", tva.getTvaBrute20()));
-        acroForm.getField("tvaBrute10").setValue(String.format("%.2f", tva.getTvaBrute10()));
-        acroForm.getField("tvaBrute55").setValue(String.format("%.2f", tva.getTvaBrute55()));
-        acroForm.getField("totTvaBruteDue").setValue(String.format("%.2f", tva.getTotTvaBruteDue()));
-        acroForm.getField("aBService").setValue(String.format("%.2f", tva.getABService()));
-        acroForm.getField("totTvaDed").setValue(String.format("%.2f", tva.getTotTvaDed()));
-        acroForm.getField("totTvaDue").setValue(String.format("%.2f", tva.getTotTvaDue()));
-        acroForm.getField("tvaNetDue").setValue(String.format("%.2f", tva.getTvaNetDue()));
-        acroForm.getField("taxAss").setValue(String.format("%.2f", tva.getTaxAss()));
-        acroForm.getField("totPayer").setValue(String.format("%.2f", tva.getTotPayer()));
+        acroForm.getField("BHT20").setValue(String.format("%.2f", tva.getTvaBrute20()));
+        acroForm.getField("BHT55").setValue(String.format("%.2f", tva.getTvaBrute55()));
+        acroForm.getField("BHT10").setValue(String.format("%.2f", tva.getTvaBrute10()));
+        acroForm.getField("TD20").setValue(String.format("%.2f", tva.getTvaBrute20()));
+        acroForm.getField("TD55").setValue(String.format("%.2f", tva.getTvaBrute55()));
+        acroForm.getField("TD10").setValue(String.format("%.2f", tva.getTvaBrute10()));
+
+        acroForm.getField("tot").setValue(String.format("%.2f", tva.getTotTvaBruteDue()));
+        acroForm.getField("ABS").setValue(String.format("%.2f", tva.getABService()));
+        acroForm.getField("tot_Ded").setValue(String.format("%.2f", tva.getTotTvaDed()));
+        acroForm.getField("tva_due").setValue(String.format("%.2f", tva.getTotTvaDue()));
+        acroForm.getField("tva_net").setValue(String.format("%.2f", tva.getTvaNetDue()));
+        acroForm.getField("tax_assim").setValue(String.format("%.2f", tva.getTaxAss()));
+        acroForm.getField("tot_pay").setValue(String.format("%.2f", tva.getTotPayer()));
     }
 }
