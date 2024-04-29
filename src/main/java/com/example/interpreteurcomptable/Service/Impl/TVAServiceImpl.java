@@ -41,15 +41,32 @@ public class TVAServiceImpl implements TVAService {
 
     private TVA calculateTVA(){
         TVA tva = new TVA();
-        List<Transaction> transaction = trasctionRepository.findAll();
-        List<Transaction> transactionFiltered = transaction.stream().filter(t -> t.getType().equals("C")).toList();
-        double sumOfAmountsCredit = transactionFiltered.stream()
+        List<Transaction> transactions = trasctionRepository.findAll();
+
+        // It's important to handle the case where there might be no transactions
+        if (transactions.isEmpty()) {
+            throw new IllegalStateException("No transactions available");
+        }
+
+        List<Transaction> creditTransactions = transactions.stream()
+                .filter(t -> t.getType().equals("C"))
+                .toList();
+
+        double sumOfAmountsCredit = creditTransactions.stream()
                 .mapToDouble(Transaction::getAmount)
                 .sum();
-        double sumOfAmountsDebit = transaction.stream()
+
+        double sumOfAmountsDebit = transactions.stream()
                 .filter(t -> t.getType().equals("D"))
                 .mapToDouble(Transaction::getAmount)
                 .sum();
+
+        // Assuming the list has at least one transaction and they are chronologically sorted
+        Date startDate = transactions.get(0).getStartDate(); // Start date of the first transaction
+        Date endDate = transactions.get(transactions.size() - 1).getEndDate(); // End date of the last transaction
+
+        tva.setDu(startDate.toString());
+        tva.setAu(endDate.toString());
         tva.setVente(sumOfAmountsCredit);
         tva.setTvaBrute20(sumOfAmountsCredit * 0.2);
         tva.setTvaBrute10(sumOfAmountsCredit * 0.1);

@@ -34,7 +34,7 @@ public class AuthenticationService {
                 .role(Role.USER)
                 .build();
         User u = utilisateurRepository.save(user);
-        emailService.sendEmailWithTemplate(u);
+        //emailService.sendEmailWithTemplate(u);
         var jwt = jwtService.generateToken(user);
         return AuthenticationResponse.builder().token(jwt).build();
     }
